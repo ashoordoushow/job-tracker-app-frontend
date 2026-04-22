@@ -107,3 +107,17 @@ h1 {
 .job-form button:hover {
   background: #1d4ed8;
 }
+
+.cover-letter-box {
+  margin: 30px auto;
+  max-width: 600px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.cover-letter-box pre {
+  white-space: pre-wrap;
+  font-family: inherit;
+}

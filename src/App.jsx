@@ -4,6 +4,8 @@ import "./App.css";
 
 function App() {
   const [jobs, setJobs] = useState([]);
+  const [coverLetter, setCoverLetter] = useState("");
+  const [loadingId, setLoadingId] = useState(null);
   const [formData, setFormData] = useState({
     company: "",
     title: "",
@@ -60,14 +62,18 @@ function App() {
 
   const generateCoverLetter = async (id) => {
     try {
+      setLoadingId(id);
+
       const res = await axios.post(
         `https://jobtrackerappbackend-production.up.railway.app/jobs/${id}/generate_cover_letter`
       );
 
-      alert(res.data.cover_letter);
+      setCoverLetter(res.data.cover_letter);
     } catch (err) {
       console.error(err);
       alert("Failed to generate cover letter");
+    } finally {
+      setLoadingId(null);
     }
   };
 
@@ -159,11 +165,18 @@ function App() {
             )}
 
             <button onClick={() => generateCoverLetter(job.id)}>
-              Generate Cover Letter
+              {loadingId === job.id ? "Generating..." : "Generate Cover Letter"}
             </button>
           </div>
         ))}
       </div>
+
+      {coverLetter && (
+        <div className="cover-letter-box">
+          <h2>Generated Cover Letter</h2>
+          <pre>{coverLetter}</pre>
+        </div>
+      )}
     </div>
   );
 }
