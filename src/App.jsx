@@ -17,19 +17,17 @@ function App() {
     notes: ""
   });
 
-  const fetchJobs = () => {
-    axios.get("https://jobtrackerappbackend-production.up.railway.app/jobs")
-      .then((response) => {
-        setJobs(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching jobs:", error);
-      });
-  };
-
   useEffect(() => {
-    fetchJobs();
+    const savedJobs = localStorage.getItem("jobs");
+    if (savedJobs) {
+      setJobs(JSON.parse(savedJobs));
+    }
   }, []);
+
+  const saveJobsToStorage = (updatedJobs) => {
+    setJobs(updatedJobs);
+    localStorage.setItem("jobs", JSON.stringify(updatedJobs));
+  };
 
   const handleChange = (event) => {
     setFormData({
@@ -41,33 +39,33 @@ function App() {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    axios.post("https://jobtrackerappbackend-production.up.railway.app/jobs", {
-      job: formData
-    })
-      .then(() => {
-        fetchJobs();
-        setFormData({
-          company: "",
-          title: "",
-          status: "Applied",
-          location: "",
-          link: "",
-          date_applied: "",
-          notes: ""
-        });
-      })
-      .catch((error) => {
-        console.error("Error creating job:", error);
-      });
+    const newJob = {
+      id: Date.now(),
+      ...formData
+    };
+
+    const updatedJobs = [newJob, ...jobs];
+    saveJobsToStorage(updatedJobs);
+
+    setFormData({
+      company: "",
+      title: "",
+      status: "Applied",
+      location: "",
+      link: "",
+      date_applied: "",
+      notes: ""
+    });
   };
 
-  const generateCoverLetter = async (id) => {
+  const generateCoverLetter = async (job) => {
     try {
-      setLoadingId(id);
+      setLoadingId(job.id);
       setCopySuccess("");
 
       const res = await axios.post(
-        `https://jobtrackerappbackend-production.up.railway.app/jobs/${id}/generate_cover_letter`
+        "https://jobtrackerappbackend-production.up.railway.app/jobs/generate_cover_letter_from_data",
+        { job }
       );
 
       setCoverLetter(res.data.cover_letter);
@@ -123,9 +121,11 @@ function App() {
           onChange={handleChange}
         >
           <option value="Applied">Applied</option>
+          <option value="Assessment">Assessment</option>
+          <option value="Phone Screen">Phone Screen</option>
           <option value="Interview">Interview</option>
-          <option value="Rejected">Rejected</option>
           <option value="Offer">Offer</option>
+          <option value="Rejected">Rejected</option>
         </select>
 
         <input
@@ -179,7 +179,7 @@ function App() {
                 </a>
               )}
 
-              <button onClick={() => generateCoverLetter(job.id)}>
+              <button onClick={() => generateCoverLetter(job)}>
                 {loadingId === job.id ? "Generating..." : "Generate Cover Letter"}
               </button>
             </div>
