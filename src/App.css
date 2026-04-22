@@ -173,3 +173,18 @@ h1 {
   font-weight: 600;
   margin-bottom: 12px;
 }
+
+.delete-button {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.delete-button:hover {
+  background: #b91c1c;
+}

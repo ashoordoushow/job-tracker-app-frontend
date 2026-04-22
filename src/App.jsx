@@ -58,6 +58,18 @@ function App() {
     });
   };
 
+  const handleDeleteJob = (id) => {
+    const confirmed = window.confirm("Are you sure you want to delete this job?");
+    if (!confirmed) return;
+
+    const updatedJobs = jobs.filter((job) => job.id !== id);
+    saveJobsToStorage(updatedJobs);
+
+    if (loadingId === id) {
+      setLoadingId(null);
+    }
+  };
+
   const generateCoverLetter = async (job) => {
     try {
       setLoadingId(job.id);
@@ -181,6 +193,14 @@ function App() {
 
               <button onClick={() => generateCoverLetter(job)}>
                 {loadingId === job.id ? "Generating..." : "Generate Cover Letter"}
+              </button>
+
+              <button
+                type="button"
+                className="delete-button"
+                onClick={() => handleDeleteJob(job.id)}
+              >
+                Delete Job
               </button>
             </div>
           </div>
