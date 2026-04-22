@@ -6,6 +6,7 @@ function App() {
   const [jobs, setJobs] = useState([]);
   const [coverLetter, setCoverLetter] = useState("");
   const [loadingId, setLoadingId] = useState(null);
+  const [copySuccess, setCopySuccess] = useState("");
   const [formData, setFormData] = useState({
     company: "",
     title: "",
@@ -63,6 +64,7 @@ function App() {
   const generateCoverLetter = async (id) => {
     try {
       setLoadingId(id);
+      setCopySuccess("");
 
       const res = await axios.post(
         `https://jobtrackerappbackend-production.up.railway.app/jobs/${id}/generate_cover_letter`
@@ -74,6 +76,18 @@ function App() {
       alert("Failed to generate cover letter");
     } finally {
       setLoadingId(null);
+    }
+  };
+
+  const copyCoverLetter = async () => {
+    try {
+      await navigator.clipboard.writeText(coverLetter);
+      setCopySuccess("Copied!");
+      setTimeout(() => setCopySuccess(""), 2000);
+    } catch (err) {
+      console.error("Copy failed:", err);
+      setCopySuccess("Copy failed");
+      setTimeout(() => setCopySuccess(""), 2000);
     }
   };
 
@@ -158,22 +172,32 @@ function App() {
             <p><strong>Date Applied:</strong> {job.date_applied}</p>
             <p><strong>Notes:</strong> {job.notes}</p>
 
-            {job.link && (
-              <a href={job.link} target="_blank" rel="noreferrer">
-                View Job Posting
-              </a>
-            )}
+            <div className="job-actions">
+              {job.link && (
+                <a href={job.link} target="_blank" rel="noreferrer">
+                  View Job Posting
+                </a>
+              )}
 
-            <button onClick={() => generateCoverLetter(job.id)}>
-              {loadingId === job.id ? "Generating..." : "Generate Cover Letter"}
-            </button>
+              <button onClick={() => generateCoverLetter(job.id)}>
+                {loadingId === job.id ? "Generating..." : "Generate Cover Letter"}
+              </button>
+            </div>
           </div>
         ))}
       </div>
 
       {coverLetter && (
         <div className="cover-letter-box">
-          <h2>Generated Cover Letter</h2>
+          <div className="cover-letter-header">
+            <h2>Generated Cover Letter</h2>
+            <button className="copy-button" onClick={copyCoverLetter}>
+              Copy Cover Letter
+            </button>
+          </div>
+
+          {copySuccess && <p className="copy-success">{copySuccess}</p>}
+
           <pre>{coverLetter}</pre>
         </div>
       )}
