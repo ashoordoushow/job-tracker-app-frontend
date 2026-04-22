@@ -15,7 +15,7 @@ function App() {
   });
 
   const fetchJobs = () => {
-    axios.get("http://localhost:3000/jobs")
+    axios.get("https://jobtrackerappbackend-production.up.railway.app/jobs")
       .then((response) => {
         setJobs(response.data);
       })
@@ -38,7 +38,7 @@ function App() {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    axios.post("http://localhost:3000/jobs", {
+    axios.post("https://jobtrackerappbackend-production.up.railway.app/jobs", {
       job: formData
     })
       .then(() => {
