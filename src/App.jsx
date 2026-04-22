@@ -58,6 +58,19 @@ function App() {
       });
   };
 
+  const generateCoverLetter = async (id) => {
+    try {
+      const res = await axios.post(
+        `https://jobtrackerappbackend-production.up.railway.app/jobs/${id}/generate_cover_letter`
+      );
+
+      alert(res.data.cover_letter);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to generate cover letter");
+    }
+  };
+
   return (
     <div className="app">
       <h1>Job Tracker</h1>
@@ -144,6 +157,10 @@ function App() {
                 View Job Posting
               </a>
             )}
+
+            <button onClick={() => generateCoverLetter(job.id)}>
+              Generate Cover Letter
+            </button>
           </div>
         ))}
       </div>
