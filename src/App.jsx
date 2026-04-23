@@ -59,15 +59,11 @@ function App() {
   };
 
   const handleDeleteJob = (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this job?");
+    const confirmed = window.confirm("Are you sure?");
     if (!confirmed) return;
 
     const updatedJobs = jobs.filter((job) => job.id !== id);
     saveJobsToStorage(updatedJobs);
-
-    if (loadingId === id) {
-      setLoadingId(null);
-    }
   };
 
   const generateCoverLetter = async (job) => {
@@ -90,129 +86,115 @@ function App() {
   };
 
   const copyCoverLetter = async () => {
-    try {
-      await navigator.clipboard.writeText(coverLetter);
-      setCopySuccess("Copied!");
-      setTimeout(() => setCopySuccess(""), 2000);
-    } catch (err) {
-      console.error("Copy failed:", err);
-      setCopySuccess("Copy failed");
-      setTimeout(() => setCopySuccess(""), 2000);
-    }
+    await navigator.clipboard.writeText(coverLetter);
+    setCopySuccess("Copied!");
+    setTimeout(() => setCopySuccess(""), 2000);
   };
 
   return (
     <div className="app">
-      <h1>Job Tracker</h1>
-      <p className="subtitle">Track your applications, interviews, and rejections.</p>
 
-      <form className="job-form" onSubmit={handleSubmit}>
-        <h2>Add New Job</h2>
+      {/* HERO SECTION */}
+      <div className="hero-layout">
+        <div className="hero-panel">
+          <div className="hero-badge">AI-powered job search</div>
 
-        <input
-          type="text"
-          name="company"
-          placeholder="Company"
-          value={formData.company}
-          onChange={handleChange}
-          required
-        />
+          <h1>Track jobs and generate cover letters instantly.</h1>
 
-        <input
-          type="text"
-          name="title"
-          placeholder="Job Title"
-          value={formData.title}
-          onChange={handleChange}
-          required
-        />
+          <p className="subtitle">
+            Keep your job applications organized and generate tailored cover letters
+            with one click — all privately in your browser.
+          </p>
 
-        <select
-          name="status"
-          value={formData.status}
-          onChange={handleChange}
-        >
-          <option value="Applied">Applied</option>
-          <option value="Assessment">Assessment</option>
-          <option value="Phone Screen">Phone Screen</option>
-          <option value="Interview">Interview</option>
-          <option value="Offer">Offer</option>
-          <option value="Rejected">Rejected</option>
-        </select>
+          <div className="hero-metrics">
+            <div className="metric-card">
+              <span className="metric-value">{jobs.length}</span>
+              <span className="metric-label">Jobs tracked</span>
+            </div>
 
-        <input
-          type="text"
-          name="location"
-          placeholder="Location"
-          value={formData.location}
-          onChange={handleChange}
-        />
-
-        <input
-          type="text"
-          name="link"
-          placeholder="Job Link"
-          value={formData.link}
-          onChange={handleChange}
-        />
-
-        <input
-          type="date"
-          name="date_applied"
-          value={formData.date_applied}
-          onChange={handleChange}
-        />
-
-        <textarea
-          name="notes"
-          placeholder="Notes"
-          value={formData.notes}
-          onChange={handleChange}
-          rows="4"
-        />
-
-        <button type="submit">Add Job</button>
-      </form>
-
-      <div className="job-list">
-        {jobs.map((job) => (
-          <div key={job.id} className="job-card">
-            <h2>{job.company}</h2>
-            <p><strong>Title:</strong> {job.title}</p>
-            <p><strong>Status:</strong> {job.status}</p>
-            <p><strong>Location:</strong> {job.location}</p>
-            <p><strong>Date Applied:</strong> {job.date_applied}</p>
-            <p><strong>Notes:</strong> {job.notes}</p>
-
-            <div className="job-actions">
-              {job.link && (
-                <a href={job.link} target="_blank" rel="noreferrer">
-                  View Job Posting
-                </a>
-              )}
-
-              <button onClick={() => generateCoverLetter(job)}>
-                {loadingId === job.id ? "Generating..." : "Generate Cover Letter"}
-              </button>
-
-              <button
-                type="button"
-                className="delete-button"
-                onClick={() => handleDeleteJob(job.id)}
-              >
-                Delete Job
-              </button>
+            <div className="metric-card">
+              <span className="metric-value">AI</span>
+              <span className="metric-label">Cover letter generation</span>
             </div>
           </div>
-        ))}
+        </div>
+
+        {/* FORM */}
+        <form className="job-form" onSubmit={handleSubmit}>
+          <h2>Add New Job</h2>
+
+          <input name="company" placeholder="Company" value={formData.company} onChange={handleChange} required />
+          <input name="title" placeholder="Job Title" value={formData.title} onChange={handleChange} required />
+
+          <select name="status" value={formData.status} onChange={handleChange}>
+            <option value="Applied">Applied</option>
+            <option value="Assessment">Assessment</option>
+            <option value="Phone Screen">Phone Screen</option>
+            <option value="Interview">Interview</option>
+            <option value="Offer">Offer</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+
+          <input name="location" placeholder="Location" value={formData.location} onChange={handleChange} />
+          <input name="link" placeholder="Job Link" value={formData.link} onChange={handleChange} />
+          <input type="date" name="date_applied" value={formData.date_applied} onChange={handleChange} />
+
+          <textarea name="notes" placeholder="Notes" value={formData.notes} onChange={handleChange} rows="4" />
+
+          <button type="submit">Add Job</button>
+        </form>
       </div>
 
+      {/* JOB LIST SECTION */}
+      <div className="content-section">
+        <div className="jobs-header">
+          <div>
+            <h2 className="section-title">Your job pipeline</h2>
+            <p>Everything stays private to your browser.</p>
+          </div>
+        </div>
+
+        {jobs.length === 0 ? (
+          <div className="empty-state">No jobs yet. Add one above.</div>
+        ) : (
+          <div className="job-list">
+            {jobs.map((job) => (
+              <div key={job.id} className="job-card">
+                <h2>{job.company}</h2>
+
+                <div className={`status-pill status-${job.status.toLowerCase().replace(/\s+/g, "-")}`}>
+                  {job.status}
+                </div>
+
+                <p><strong>{job.title}</strong></p>
+                <p>{job.location}</p>
+                <p>{job.date_applied}</p>
+                <p>{job.notes}</p>
+
+                <div className="job-actions">
+                  {job.link && <a href={job.link} target="_blank" rel="noreferrer">View Job</a>}
+
+                  <button onClick={() => generateCoverLetter(job)}>
+                    {loadingId === job.id ? "Generating..." : "Generate"}
+                  </button>
+
+                  <button className="delete-button" onClick={() => handleDeleteJob(job.id)}>
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* COVER LETTER */}
       {coverLetter && (
         <div className="cover-letter-box">
           <div className="cover-letter-header">
             <h2>Generated Cover Letter</h2>
             <button className="copy-button" onClick={copyCoverLetter}>
-              Copy Cover Letter
+              Copy
             </button>
           </div>
 
